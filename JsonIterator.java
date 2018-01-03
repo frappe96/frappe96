@@ -73,6 +73,9 @@ public class JsonIterator implements Closeable {
 	 */
 	private Type T;
 
+	private final String Sread = "read";
+	private final String stringa = "premature end";
+	
 	static {
 		for (int i = 0; i < valueTypes.length; i++) {
 			valueTypes[i] = ValueType.INVALID;
@@ -326,8 +329,6 @@ public class JsonIterator implements Closeable {
 	}
 
 	public final Any readAny() throws IOException {
-		String Sread = "read";
-		String stringa = "premature end";
 		try {
 			return IterImpl.readAny(this);
 		} catch (ArrayIndexOutOfBoundsException e) {
