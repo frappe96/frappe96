@@ -373,18 +373,23 @@ public class GsonCompatibilityMode extends Config {
 					while (i < n) {
 						int c = value.charAt(i);
 						String replacement = null;
-						if (c < 128) {
+						
+						switch(c){
+						case 128:
 							replacement = replacements[c];
 							if (replacement == null) {
 								stream.write(c);
 							} else {
 								stream.writeRaw(replacement);
 							}
-						} else if (c == '\u2028') {
+							break;
+						case '\u2028':
 							stream.writeRaw("\\u2028");
-						} else if (c == '\u2029') {
+							break;
+						case '\u2029':
 							stream.writeRaw("\\u2029");
-						} else {
+							break;
+						default:
 							if (c < 0x800) { // 2-byte
 								Integer n1 = Integer
 										.valueOf(Integer
