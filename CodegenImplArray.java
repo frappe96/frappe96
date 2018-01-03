@@ -1,6 +1,7 @@
-package com.jsoniter;
+package com.jsoniter.output;
 
 import com.jsoniter.spi.ClassInfo;
+import com.jsoniter.spi.JsoniterSpi;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -13,213 +14,197 @@ import java.util.*;
  */
 class CodegenImplArray {
 
+	final static String stringaIF =  "if (e == null) { stream.writeNull(); } else {";
+	final static String stringaE = "e";
+	final static String parentesi = "}";
+	
 	private CodegenImplArray() {
 	}
 
-	static final String parentesi1 = "}";
-	static final String stringaIf = "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {";
-	final static String stringa1 = "{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);";
-	private final static int SBSIZE = 128;
 	/**
-	 * static Set<Class> WITH_CAPACITY_COLLECTION_CLASSES
-	 */
-	final static Set<Class> WITH_CAPACITY_COLLECTION_CLASSES = new HashSet<Class>() {
-		/**
-		* 
-		*/
-		private static final long serialVersionUID = 1723371799837389402L;
-
-		{
-			add(ArrayList.class);
-			add(HashSet.class);
-			add(Vector.class);
-		}
-	};
-
-	/**
-	 * genArray.
+	 * genCollection
 	 * 
+	 * @param cacheKey
 	 * @param classInfo
 	 * @return
 	 */
-	public static String genArray(ClassInfo classInfo) {
-
-		Class compType = classInfo.clazz.getComponentType();
-		if (compType.isArray()) {
-			throw new IllegalArgumentException("nested array not supported: " + classInfo.clazz.getCanonicalName());
-		}
-		StringBuilder lines = new StringBuilder(SBSIZE);
-		append(lines, "com.jsoniter.CodegenAccess.resetExistingObject(iter);");
-		append(lines, "byte nextToken = com.jsoniter.CodegenAccess.readByte(iter);");
-		append(lines, "if (nextToken != '[') {");
-		append(lines, "if (nextToken == 'n') {");
-		append(lines, "com.jsoniter.CodegenAccess.skipFixedBytes(iter, 3);");
-		append(lines, "com.jsoniter.CodegenAccess.resetExistingObject(iter); return null;");
-		append(lines, "} else {");
-		append(lines, "nextToken = com.jsoniter.CodegenAccess.nextToken(iter);");
-		append(lines, "if (nextToken == 'n') {");
-		append(lines, "com.jsoniter.CodegenAccess.skipFixedBytes(iter, 3);");
-		append(lines, "com.jsoniter.CodegenAccess.resetExistingObject(iter); return null;");
-		append(lines, parentesi1);
-		append(lines, parentesi1);
-		append(lines, parentesi1);
-		String stringa7 = "nextToken = com.jsoniter.CodegenAccess.nextToken(iter);";
-		append(lines, stringa7);
-		append(lines, "if (nextToken == ']') {");
-		append(lines, "return new {{comp}}[0];");
-		append(lines, parentesi1);
-		append(lines, "com.jsoniter.CodegenAccess.unreadByte(iter);");
-		append(lines, "{{comp}} a1 = {{op}};");
-		append(lines, stringaIf);
-		append(lines, "return new {{comp}}[]{ a1 };");
-		append(lines, parentesi1);
-		append(lines, "{{comp}} a2 = {{op}};");
-		append(lines, stringaIf);
-		append(lines, "return new {{comp}}[]{ a1, a2 };");
-		append(lines, parentesi1);
-		append(lines, "{{comp}} a3 = {{op}};");
-		append(lines, stringaIf);
-		append(lines, "return new {{comp}}[]{ a1, a2, a3 };");
-		append(lines, parentesi1);
-		append(lines, "{{comp}} a4 = ({{comp}}) {{op}};");
-		append(lines, stringaIf);
-		append(lines, "return new {{comp}}[]{ a1, a2, a3, a4 };");
-		append(lines, parentesi1);
-		append(lines, "{{comp}} a5 = ({{comp}}) {{op}};");
-		append(lines, "{{comp}}[] arr = new {{comp}}[10];");
-		append(lines, "arr[0] = a1;");
-		append(lines, "arr[1] = a2;");
-		append(lines, "arr[2] = a3;");
-		append(lines, "arr[3] = a4;");
-		append(lines, "arr[4] = a5;");
-		append(lines, "int i = 5;");
-		append(lines, "while (com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
-		append(lines, "if (i == arr.length) {");
-		append(lines, "{{comp}}[] newArr = new {{comp}}[arr.length * 2];");
-		append(lines, "System.arraycopy(arr, 0, newArr, 0, arr.length);");
-		append(lines, "arr = newArr;");
-		append(lines, parentesi1);
-		append(lines, "arr[i++] = {{op}};");
-		append(lines, parentesi1);
-		// append(lines, "if (c != ']') {
-		// com.jsoniter.CodegenAccess.reportIncompleteArray(iter); }");
-		append(lines, "{{comp}}[] result = new {{comp}}[i];");
-		append(lines, "System.arraycopy(arr, 0, result, 0, i);");
-		append(lines, "return result;");
-		return lines.toString().replace("{{comp}}", compType.getCanonicalName()).replace("{{op}}",
-				CodegenImplNative.genReadOp(compType));
-	}
-
-	public static String genCollection(ClassInfo classInfo) {
-		if (WITH_CAPACITY_COLLECTION_CLASSES.contains(classInfo.clazz)) {
-			return CodegenImplArray.genCollectionWithCapacity(classInfo.clazz, classInfo.typeArgs[0]);
+	public static CodegenResult genCollection(String cacheKey, ClassInfo classInfo) {
+		Type[] typeArgs = classInfo.typeArgs;
+		Class clazz = classInfo.clazz;
+		Type compType = Object.class;
+		if (typeArgs.length == 1) {
+			compType = typeArgs[0];
 		} else {
-			return CodegenImplArray.genCollectionWithoutCapacity(classInfo.clazz, classInfo.typeArgs[0]);
+			throw new IllegalArgumentException("can not bind to generic collection without argument types, "
+					+ "try syntax like TypeLiteral<List<Integer>>{}");
+		}
+		if (clazz == List.class) {
+			clazz = ArrayList.class;
+		} else if (clazz == Set.class) {
+			clazz = HashSet.class;
+		}
+		if (List.class.isAssignableFrom(clazz)) {
+			return genList(cacheKey, compType);
+		} else {
+			return genCollection(cacheKey, compType);
 		}
 	}
 
-	private static String genCollectionWithCapacity(Class clazz, Type compType) {
-		StringBuilder lines = new StringBuilder(SBSIZE);
-		append(lines, "{{clazz}} col = ({{clazz}})com.jsoniter.CodegenAccess.resetExistingObject(iter);");
-		append(lines, "if (iter.readNull()) { com.jsoniter.CodegenAccess.resetExistingObject(iter); return null; }");
-		append(lines, "if (!com.jsoniter.CodegenAccess.readArrayStart(iter)) {");
-		append(lines,
-				"return col == null ? new {{clazz}}(0): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, parentesi1);
-		append(lines, "Object a1 = {{op}};");
-		String stringa6 = "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {";
-		append(lines, stringa6);
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(1): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		String stringa2 = "obj.add(a1);";
-		append(lines, stringa2);
-		String stringa3 = "return obj;";
-		append(lines, stringa3);
-		append(lines, parentesi1);
-		append(lines, "Object a2 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(2): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, "obj.add(a1);");
-		String stringa4 = "obj.add(a2);";
-		append(lines, stringa4);
-
-		append(lines, "return obj;");
-		append(lines, parentesi1);
-		append(lines, "Object a3 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(3): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, "obj.add(a1);");
-		append(lines, "obj.add(a2);");
-		String stringa5 = "obj.add(a3);";
-		append(lines, stringa5);
-		append(lines, "return obj;");
-		append(lines, parentesi1);
-		append(lines, "Object a4 = {{op}};");
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(8): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, "obj.add(a1);");
-		append(lines, "obj.add(a2);");
-		append(lines, "obj.add(a3);");
-		append(lines, "obj.add(a4);");
-		append(lines, "while (com.jsoniter.CodegenAccess.nextToken(iter) == ',') {");
-		append(lines, "obj.add({{op}});");
-		append(lines, parentesi1);
-		append(lines, "return obj;");
-		return lines.toString().replace("{{clazz}}", clazz.getName()).replace("{{op}}",
-				CodegenImplNative.genReadOp(compType));
+	public static CodegenResult genArray(String cacheKey, ClassInfo classInfo) {
+		boolean noIndention = JsoniterSpi.getCurrentConfig().indentionStep() == 0;
+		Class clazz = classInfo.clazz;
+		Class compType = clazz.getComponentType();
+		if (compType.isArray()) {
+			throw new IllegalArgumentException("nested array not supported: " + clazz.getCanonicalName());
+		}
+		boolean isCollectionValueNullable = true;
+		if (cacheKey.endsWith("__value_not_nullable")) {
+			isCollectionValueNullable = false;
+		}
+		if (compType.isPrimitive()) {
+			isCollectionValueNullable = false;
+		}
+		CodegenResult ctx = new CodegenResult();
+		ctx.append(
+				"public static void encode_(java.lang.Object obj, com.jsoniter.output.JsonStream stream) throws java.io.IOException {");
+		ctx.append(String.format("%s[] arr = (%s[])obj;", compType.getCanonicalName(), compType.getCanonicalName()));
+		if (noIndention) {
+			ctx.append("if (arr.length == 0) { return; }");
+			ctx.buffer('[');
+		} else {
+			ctx.append("if (arr.length == 0) { stream.write((byte)'[', (byte)']'); return; }");
+			ctx.append("stream.writeArrayStart(); stream.writeIndention();");
+		}
+		ctx.append("int i = 0;");
+		ctx.append(String.format("%s e = arr[i++];", compType.getCanonicalName()));
+		if (isCollectionValueNullable) {
+			ctx.append(stringaIF);
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
+			ctx.append(parentesi); // if
+		} else {
+			CodegenImplNative.genWriteOp(ctx, "e", compType, false);
+		}
+		ctx.append("while (i < arr.length) {");
+		if (noIndention) {
+			ctx.append("stream.write(',');");
+		} else {
+			ctx.append("stream.writeMore();");
+		}
+		ctx.append("e = arr[i++];");
+		if (isCollectionValueNullable) {
+			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
+			ctx.append("}"); // if
+		} else {
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, false);
+		}
+		ctx.append(parentesi); // while
+		if (noIndention) {
+			ctx.buffer(']');
+		} else {
+			ctx.append("stream.writeArrayEnd();");
+		}
+		ctx.append(parentesi); // public static void encode_
+		return ctx;
 	}
 
-	private static String genCollectionWithoutCapacity(Class clazz, Type compType) {
-		StringBuilder lines = new StringBuilder(SBSIZE);
-		append(lines, "if (iter.readNull()) { com.jsoniter.CodegenAccess.resetExistingObject(iter); return null; }");
-		append(lines, "{{clazz}} col = ({{clazz}})com.jsoniter.CodegenAccess.resetExistingObject(iter);");
-		append(lines, "if (!com.jsoniter.CodegenAccess.readArrayStart(iter)) {");
-		append(lines,
-				"return col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, parentesi1);
-		append(lines, "Object a1 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-
-		append(lines, stringa1);
-		append(lines, "obj.add(a1);");
-		append(lines, "return obj;");
-		append(lines, parentesi1);
-		append(lines, "Object a2 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		append(lines, stringa1);
-		append(lines, "obj.add(a1);");
-		append(lines, "obj.add(a2);");
-		append(lines, "return obj;");
-		append(lines, parentesi1);
-		append(lines, "Object a3 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		append(lines, stringa1);
-		append(lines, "obj.add(a1);");
-		append(lines, "obj.add(a2);");
-		append(lines, "obj.add(a3);");
-		append(lines, "return obj;");
-		append(lines, parentesi1);
-		append(lines, "Object a4 = {{op}};");
-		append(lines, stringa1);
-
-		append(lines, "obj.add(a1);");
-		append(lines, "obj.add(a2);");
-		append(lines, "obj.add(a3);");
-		append(lines, "obj.add(a4);");
-		append(lines, "while (com.jsoniter.CodegenAccess.nextToken(iter) == ',') {");
-		append(lines, "obj.add({{op}});");
-		append(lines, parentesi1);
-		// append(lines, "if (c != ']') {
-		// com.jsoniter.CodegenAccess.reportIncompleteArray(iter); }");
-		append(lines, "return obj;");
-		return lines.toString().replace("{{clazz}}", clazz.getName()).replace("{{op}}",
-				CodegenImplNative.genReadOp(compType));
+	private static CodegenResult genList(String cacheKey, Type compType) {
+		boolean noIndention = JsoniterSpi.getCurrentConfig().indentionStep() == 0;
+		boolean isCollectionValueNullable = true;
+		if (cacheKey.endsWith("__value_not_nullable")) {
+			isCollectionValueNullable = false;
+		}
+		CodegenResult ctx = new CodegenResult();
+		ctx.append(
+				"public static void encode_(java.lang.Object obj, com.jsoniter.output.JsonStream stream) throws java.io.IOException {");
+		ctx.append("java.util.List list = (java.util.List)obj;");
+		ctx.append("int size = list.size();");
+		if (noIndention) {
+			ctx.append("if (size == 0) { return; }");
+			ctx.buffer('[');
+		} else {
+			ctx.append("if (size == 0) { stream.write((byte)'[', (byte)']'); return; }");
+			ctx.append("stream.writeArrayStart(); stream.writeIndention();");
+		}
+		ctx.append("java.lang.Object e = list.get(0);");
+		if (isCollectionValueNullable) {
+			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
+			ctx.append(parentesi);
+		} else {
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, false);
+		}
+		ctx.append("for (int i = 1; i < size; i++) {");
+		if (noIndention) {
+			ctx.append("stream.write(',');");
+		} else {
+			ctx.append("stream.writeMore();");
+		}
+		ctx.append("e = list.get(i);");
+		if (isCollectionValueNullable) {
+			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
+			ctx.append(parentesi); // if
+		} else {
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, false);
+		}
+		ctx.append(parentesi); // for
+		if (noIndention) {
+			ctx.buffer(']');
+		} else {
+			ctx.append("stream.writeArrayEnd();");
+		}
+		ctx.append(parentesi); // public static void encode_
+		return ctx;
 	}
 
-	private static void append(StringBuilder lines, String str) {
-		lines.append(str);
-		lines.append("\n");
+	private static CodegenResult genCollection(String cacheKey, Type compType) {
+		boolean noIndention = JsoniterSpi.getCurrentConfig().indentionStep() == 0;
+		boolean isCollectionValueNullable = true;
+		if (cacheKey.endsWith("__value_not_nullable")) {
+			isCollectionValueNullable = false;
+		}
+		CodegenResult ctx = new CodegenResult();
+		ctx.append(
+				"public static void encode_(java.lang.Object obj, com.jsoniter.output.JsonStream stream) throws java.io.IOException {");
+		ctx.append("java.util.Iterator iter = ((java.util.Collection)obj).iterator();");
+		if (noIndention) {
+			ctx.append("if (!iter.hasNext()) { return; }");
+			ctx.buffer('[');
+		} else {
+			ctx.append("if (!iter.hasNext()) { stream.write((byte)'[', (byte)']'); return; }");
+			ctx.append("stream.writeArrayStart(); stream.writeIndention();");
+		}
+		ctx.append("java.lang.Object e = iter.next();");
+		if (isCollectionValueNullable) {
+			ctx.append(stringaIF);
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
+			ctx.append(parentesi); // if
+		} else {
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, false);
+		}
+		ctx.append("while (iter.hasNext()) {");
+		if (noIndention) {
+			ctx.append("stream.write(',');");
+		} else {
+			ctx.append("stream.writeMore();");
+		}
+		ctx.append("e = iter.next();");
+		if (isCollectionValueNullable) {
+			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
+			ctx.append(parentesi); // if
+		} else {
+			CodegenImplNative.genWriteOp(ctx, stringaE, compType, false);
+		}
+		ctx.append(parentesi); // while
+		if (noIndention) {
+			ctx.buffer(']');
+		} else {
+			ctx.append("stream.writeArrayEnd();");
+		}
+		ctx.append(parentesi); // public static void encode_
+		return ctx;
 	}
+
 }
