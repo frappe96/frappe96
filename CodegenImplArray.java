@@ -16,7 +16,7 @@ class CodegenImplArray {
 	private CodegenImplArray() {
 	}
 
-	static private String parentesiChiusa = "}";
+	private final static  String parentesiChiusa = "}";
 	private final static int SBSIZE = 128;
 	/**
 	 * static Set<Class> WITH_CAPACITY_COLLECTION_CLASSES
@@ -69,19 +69,19 @@ class CodegenImplArray {
 		append(lines, "{{comp}} a1 = {{op}};");
 		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
 		append(lines, "return new {{comp}}[]{ a1 };");
-		append(lines, "}");
+		append(lines, parentesiChiusa);
 		append(lines, "{{comp}} a2 = {{op}};");
 		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
 		append(lines, "return new {{comp}}[]{ a1, a2 };");
-		append(lines, "}");
+		append(lines, parentesiChiusa);
 		append(lines, "{{comp}} a3 = {{op}};");
 		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
 		append(lines, "return new {{comp}}[]{ a1, a2, a3 };");
-		append(lines, "}");
+		append(lines, parentesiChiusa);
 		append(lines, "{{comp}} a4 = ({{comp}}) {{op}};");
 		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
 		append(lines, "return new {{comp}}[]{ a1, a2, a3, a4 };");
-		append(lines, "}");
+		append(lines, parentesiChiusa);
 		append(lines, "{{comp}} a5 = ({{comp}}) {{op}};");
 		append(lines, "{{comp}}[] arr = new {{comp}}[10];");
 		append(lines, "arr[0] = a1;");
@@ -95,7 +95,7 @@ class CodegenImplArray {
 		append(lines, "{{comp}}[] newArr = new {{comp}}[arr.length * 2];");
 		append(lines, "System.arraycopy(arr, 0, newArr, 0, arr.length);");
 		append(lines, "arr = newArr;");
-		append(lines, "}");
+		append(lines, parentesiChiusa);
 		append(lines, "arr[i++] = {{op}};");
 		append(lines, "}");
 		// append(lines, "if (c != ']') {
