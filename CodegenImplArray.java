@@ -16,6 +16,7 @@ class CodegenImplArray {
 	private CodegenImplArray() {
 	}
 
+	static private String parentesiChiusa = "}";
 	private final static int SBSIZE = 128;
 	/**
 	 * static Set<Class> WITH_CAPACITY_COLLECTION_CLASSES
@@ -40,8 +41,6 @@ class CodegenImplArray {
 	 * @return
 	 */
 	public static String genArray(ClassInfo classInfo) {
-		String parentesiChiusa = "}";
-		
 		Class compType = classInfo.clazz.getComponentType();
 		if (compType.isArray()) {
 			throw new IllegalArgumentException("nested array not supported: " + classInfo.clazz.getCanonicalName());
