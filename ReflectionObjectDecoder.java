@@ -157,7 +157,7 @@ class ReflectionObjectDecoder {
 	 * @author MaxiBon
 	 *
 	 */
-	final String err = "missing required properties: " + collectMissingFields(0);
+	final String err = "missing required properties: ";
 	public class OnlyField implements Decoder {
 		
 		/**
@@ -185,7 +185,7 @@ class ReflectionObjectDecoder {
 			if (!CodegenAccess.readObjectStart(iter)) {
 				if (requiredIdx > 0) {
 					if (desc.onMissingProperties == null) {
-						throw new JsonException(err);
+						throw new JsonException(err + collectMissingFields(0));
 					} else {
 						setToBinding(obj, desc.onMissingProperties, collectMissingFields(0));
 					}
@@ -222,8 +222,7 @@ class ReflectionObjectDecoder {
 			}
 			if (tracker != expectedTracker) {
 				if (desc.onMissingProperties == null) {
-					
-					throw new JsonException("missing required properties: " + collectMissingFields(tracker));
+					throw new JsonException(err + collectMissingFields(tracker));
 				} else {
 					setToBinding(obj, desc.onMissingProperties, collectMissingFields(tracker));
 				}
@@ -273,7 +272,7 @@ class ReflectionObjectDecoder {
 				Arrays.fill(temp, NOT_SET);
 				if (!CodegenAccess.readObjectStart(iter)) {
 					if (requiredIdx > 0) {
-						throw new JsonException(err);
+						throw new JsonException(err + collectMissingFields(0));
 					}
 					return createNewObject(iter, temp);
 				}
@@ -306,7 +305,7 @@ class ReflectionObjectDecoder {
 					intero = b;
 				}
 				if (tracker != expectedTracker) {
-					throw new JsonException("missing required properties: " + collectMissingFields(tracker));
+					throw new JsonException(err + collectMissingFields(tracker));
 				}
 				Object obj = createNewObject(iter, temp);
 				setExtra(obj, extra);
@@ -361,7 +360,7 @@ class ReflectionObjectDecoder {
 			if (!CodegenAccess.readObjectStart(iter)) {
 				if (requiredIdx > 0) {
 					if (desc.onMissingProperties == null) {
-						throw new JsonException(err);
+						throw new JsonException(err + collectMissingFields(0));
 					} else {
 						setToBinding(obj, desc.onMissingProperties, collectMissingFields(0));
 					}
@@ -416,7 +415,7 @@ class ReflectionObjectDecoder {
 				}
 				if (tracker != expectedTracker) {
 					if (desc.onMissingProperties == null) {
-						throw new JsonException("missing required properties: " + collectMissingFields(tracker));
+						throw new JsonException(err + collectMissingFields(tracker));
 					} else {
 						setToBinding(obj, desc.onMissingProperties, collectMissingFields(tracker));
 					}

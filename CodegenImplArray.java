@@ -92,7 +92,7 @@ class CodegenImplArray {
 		}
 		ctx.append("e = arr[i++];");
 		if (isCollectionValueNullable) {
-			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			ctx.append(stringaIF);
 			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
 			ctx.append("}"); // if
 		} else {
@@ -128,7 +128,7 @@ class CodegenImplArray {
 		}
 		ctx.append("java.lang.Object e = list.get(0);");
 		if (isCollectionValueNullable) {
-			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			ctx.append(stringaIF);
 			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
 			ctx.append(parentesi);
 		} else {
@@ -142,7 +142,7 @@ class CodegenImplArray {
 		}
 		ctx.append("e = list.get(i);");
 		if (isCollectionValueNullable) {
-			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			ctx.append(stringaIF);
 			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
 			ctx.append(parentesi); // if
 		} else {
@@ -191,7 +191,7 @@ class CodegenImplArray {
 		}
 		ctx.append("e = iter.next();");
 		if (isCollectionValueNullable) {
-			ctx.append("if (e == null) { stream.writeNull(); } else {");
+			ctx.append(stringaIF);
 			CodegenImplNative.genWriteOp(ctx, stringaE, compType, true);
 			ctx.append(parentesi); // if
 		} else {

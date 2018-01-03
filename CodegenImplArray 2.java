@@ -24,6 +24,7 @@ class CodegenImplArray {
 	final static String obj1 = "obj.add(a1);";
 	final static String obj4 = "obj.add(a4);";
 	final static String returnObj = "return obj;";
+	final static String stringaIf2 = "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {";
 	
 	private final static int SBSIZE = 128;
 	/**
@@ -133,8 +134,8 @@ class CodegenImplArray {
 				"return col == null ? new {{clazz}}(0): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
 		append(lines, parentesi1);
 		append(lines, "Object a1 = {{op}};");
-		String stringa6 = "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {";
-		append(lines, stringa6);
+		
+		append(lines, stringaIf2); 
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(1): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
 		
@@ -143,7 +144,7 @@ class CodegenImplArray {
 		append(lines, returnObj);
 		append(lines, parentesi1);
 		append(lines, "Object a2 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
+		append(lines, stringaIf2);
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(2): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
 		append(lines, obj1);
@@ -153,7 +154,7 @@ class CodegenImplArray {
 		append(lines, returnObj);
 		append(lines, parentesi1);
 		append(lines, "Object a3 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
+		append(lines, stringaIf2);
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(3): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
 		append(lines, obj1);
@@ -186,20 +187,20 @@ class CodegenImplArray {
 				"return col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
 		append(lines, parentesi1);
 		append(lines, "Object a1 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
+		append(lines, stringaIf2);
 		append(lines, stringa1);
 		append(lines, obj1);
 		append(lines, returnObj);
 		append(lines, parentesi1);
 		append(lines, "Object a2 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
+		append(lines, stringaIf2);
 		append(lines, stringa1);
 		append(lines, obj1);
 		append(lines, obj2);
 		append(lines, returnObj);
 		append(lines, parentesi1);
 		append(lines, "Object a3 = {{op}};");
-		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
+		append(lines, stringaIf2);
 		append(lines, stringa1);
 		append(lines, obj1);
 		append(lines, obj2);
