@@ -12,10 +12,13 @@ import java.util.*;
  *
  */
 class CodegenImplArray {
-	
+
 	private CodegenImplArray() {
 	}
 
+	static final String parentesi1 = "}";
+	static final String stringaIf = "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {";
+	final static String stringa1 = "{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);";
 	private final static int SBSIZE = 128;
 	/**
 	 * static Set<Class> WITH_CAPACITY_COLLECTION_CLASSES
@@ -40,7 +43,7 @@ class CodegenImplArray {
 	 * @return
 	 */
 	public static String genArray(ClassInfo classInfo) {
-		final String parentesi1 = "}";
+
 		Class compType = classInfo.clazz.getComponentType();
 		if (compType.isArray()) {
 			throw new IllegalArgumentException("nested array not supported: " + classInfo.clazz.getCanonicalName());
@@ -57,32 +60,31 @@ class CodegenImplArray {
 		append(lines, "if (nextToken == 'n') {");
 		append(lines, "com.jsoniter.CodegenAccess.skipFixedBytes(iter, 3);");
 		append(lines, "com.jsoniter.CodegenAccess.resetExistingObject(iter); return null;");
-		
 		append(lines, parentesi1);
 		append(lines, parentesi1);
-		append(lines, "}");
+		append(lines, parentesi1);
 		String stringa7 = "nextToken = com.jsoniter.CodegenAccess.nextToken(iter);";
 		append(lines, stringa7);
 		append(lines, "if (nextToken == ']') {");
 		append(lines, "return new {{comp}}[0];");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "com.jsoniter.CodegenAccess.unreadByte(iter);");
 		append(lines, "{{comp}} a1 = {{op}};");
-		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
+		append(lines, stringaIf);
 		append(lines, "return new {{comp}}[]{ a1 };");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "{{comp}} a2 = {{op}};");
-		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
+		append(lines, stringaIf);
 		append(lines, "return new {{comp}}[]{ a1, a2 };");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "{{comp}} a3 = {{op}};");
-		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
+		append(lines, stringaIf);
 		append(lines, "return new {{comp}}[]{ a1, a2, a3 };");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "{{comp}} a4 = ({{comp}}) {{op}};");
-		append(lines, "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {");
+		append(lines, stringaIf);
 		append(lines, "return new {{comp}}[]{ a1, a2, a3, a4 };");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "{{comp}} a5 = ({{comp}}) {{op}};");
 		append(lines, "{{comp}}[] arr = new {{comp}}[10];");
 		append(lines, "arr[0] = a1;");
@@ -96,9 +98,9 @@ class CodegenImplArray {
 		append(lines, "{{comp}}[] newArr = new {{comp}}[arr.length * 2];");
 		append(lines, "System.arraycopy(arr, 0, newArr, 0, arr.length);");
 		append(lines, "arr = newArr;");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "arr[i++] = {{op}};");
-		append(lines, "}");
+		append(lines, parentesi1);
 		// append(lines, "if (c != ']') {
 		// com.jsoniter.CodegenAccess.reportIncompleteArray(iter); }");
 		append(lines, "{{comp}}[] result = new {{comp}}[i];");
@@ -123,7 +125,7 @@ class CodegenImplArray {
 		append(lines, "if (!com.jsoniter.CodegenAccess.readArrayStart(iter)) {");
 		append(lines,
 				"return col == null ? new {{clazz}}(0): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a1 = {{op}};");
 		String stringa6 = "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {";
 		append(lines, stringa6);
@@ -133,7 +135,7 @@ class CodegenImplArray {
 		append(lines, stringa2);
 		String stringa3 = "return obj;";
 		append(lines, stringa3);
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a2 = {{op}};");
 		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
 		append(lines,
@@ -143,7 +145,7 @@ class CodegenImplArray {
 		append(lines, stringa4);
 
 		append(lines, "return obj;");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a3 = {{op}};");
 		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
 		append(lines,
@@ -153,7 +155,7 @@ class CodegenImplArray {
 		String stringa5 = "obj.add(a3);";
 		append(lines, stringa5);
 		append(lines, "return obj;");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a4 = {{op}};");
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(8): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
@@ -163,7 +165,7 @@ class CodegenImplArray {
 		append(lines, "obj.add(a4);");
 		append(lines, "while (com.jsoniter.CodegenAccess.nextToken(iter) == ',') {");
 		append(lines, "obj.add({{op}});");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "return obj;");
 		return lines.toString().replace("{{clazz}}", clazz.getName()).replace("{{op}}",
 				CodegenImplNative.genReadOp(compType));
@@ -176,41 +178,39 @@ class CodegenImplArray {
 		append(lines, "if (!com.jsoniter.CodegenAccess.readArrayStart(iter)) {");
 		append(lines,
 				"return col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a1 = {{op}};");
 		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		String stringa1 = "{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);";
+
 		append(lines, stringa1);
 		append(lines, "obj.add(a1);");
 		append(lines, "return obj;");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a2 = {{op}};");
 		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
+		append(lines, stringa1);
 		append(lines, "obj.add(a1);");
 		append(lines, "obj.add(a2);");
 		append(lines, "return obj;");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a3 = {{op}};");
 		append(lines, "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {");
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
+		append(lines, stringa1);
 		append(lines, "obj.add(a1);");
 		append(lines, "obj.add(a2);");
 		append(lines, "obj.add(a3);");
 		append(lines, "return obj;");
-		append(lines, "}");
+		append(lines, parentesi1);
 		append(lines, "Object a4 = {{op}};");
-		append(lines,
-				"{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
+		append(lines, stringa1);
+
 		append(lines, "obj.add(a1);");
 		append(lines, "obj.add(a2);");
 		append(lines, "obj.add(a3);");
 		append(lines, "obj.add(a4);");
 		append(lines, "while (com.jsoniter.CodegenAccess.nextToken(iter) == ',') {");
 		append(lines, "obj.add({{op}});");
-		append(lines, "}");
+		append(lines, parentesi1);
 		// append(lines, "if (c != ']') {
 		// com.jsoniter.CodegenAccess.reportIncompleteArray(iter); }");
 		append(lines, "return obj;");
