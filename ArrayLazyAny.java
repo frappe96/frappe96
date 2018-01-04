@@ -135,13 +135,7 @@ class ArrayLazyAny extends LazyAny {
 	}
 
 	private void fillCache() {
-		if (lastParsedPos == tail) {
-			return;
-		}
-		if (cache == null) {
-			int n = 4;
-			cache = new ArrayList<Any>(n);
-		}
+		fillCacheSupport();
 		JsonIterator iter = JsonIteratorPool.borrowJsonIterator();
 		try {
 			iter.reset(data, lastParsedPos, tail);
@@ -167,6 +161,16 @@ class ArrayLazyAny extends LazyAny {
 		}
 	}
 
+	private void fillCacheSupport(){
+		if (lastParsedPos == tail) {
+			return;
+		}
+		if (cache == null) {
+			int n = 4;
+			cache = new ArrayList<Any>(n);
+		}
+	}
+	
 	private Any fillCacheUntil(int target) {
 		if (lastParsedPos == tail) {
 			return cache.get(target);
@@ -182,19 +186,6 @@ class ArrayLazyAny extends LazyAny {
 		JsonIterator iter = JsonIteratorPool.borrowJsonIterator();
 		try {
 			iter.reset(data, lastParsedPos, tail);
-			/*
-			 * iter.reset(data, lastParsedPos, tail); if (lastParsedPos == head)
-			 * { if (!CodegenAccess.readArrayStart(iter)) { lastParsedPos =
-			 * tail; throw new IndexOutOfBoundsException(); } Any element =
-			 * iter.readAny(); cache.add(element); if (target == 0) {
-			 * lastParsedPos = CodegenAccess.head(iter); return element; } i =
-			 * 1; } byte b = CodegenAccess.nextToken(iter); int intero = b;
-			 * while (intero == ',') { Any element = iter.readAny();
-			 * cache.add(element); if (i++ == target) { lastParsedPos =
-			 * CodegenAccess.head(iter); return element; } b =
-			 * CodegenAccess.nextToken(iter); intero = b; } lastParsedPos =
-			 * tail;
-			 */
 			arrayAnySupportElement(iter, target, i);
 			arrayAnySupportB(iter, target, i);
 		} catch (IOException e) {
@@ -218,7 +209,6 @@ class ArrayLazyAny extends LazyAny {
 			}
 			i = 1;
 		}
-
 	}
 
 	private void arrayAnySupportB(JsonIterator iter, int target, int i) throws IOException {
