@@ -107,6 +107,7 @@ class CodegenImplArray {
 			throw new IllegalArgumentException("nested array not supported: " + classInfo.clazz.getCanonicalName());
 		}
 		StringBuilder lines = new StringBuilder(SBSIZE);
+		lines.append("lines:");
 		lines = genArraySupport(lines);
 		lines = genArraySupport1(lines);
 		append(lines, "int i = 5;");
