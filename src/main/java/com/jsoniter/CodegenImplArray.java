@@ -16,15 +16,18 @@ class CodegenImplArray {
 	private CodegenImplArray() {
 	}
 
-	static final String parentesi1 = "}";
-	static final String stringaIf = "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {";
-	final static String stringa1 = "{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);";
-	static final String obj3 = "obj.add(a3);";
-	final static String obj2 = "obj.add(a2);";
-	final static String obj1 = "obj.add(a1);";
-	final static String obj4 = "obj.add(a4);";
-	final static String returnObj = "return obj;";
-	final static String stringaIf2 = "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {";
+	/**
+	 * parentesi1
+	 */
+	static final String PARENTESI= "}";
+	static final String STRINGAIF = "if (!com.jsoniter.CodegenAccess.nextTokenIsComma(iter)) {";
+	final static String STRINGA = "{{clazz}} obj = col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);";
+	static final String OBJ3 = "obj.add(a3);";
+	final static String OBJ2 = "obj.add(a2);";
+	final static String OBJ1 = "obj.add(a1);";
+	final static String OBJ4 = "obj.add(a4);";
+	final static String RETURNOBJ = "return obj;";
+	final static String STRINGAIF2 = "if (com.jsoniter.CodegenAccess.nextToken(iter) != ',') {";
 	
 	private final static int SBSIZE = 128;
 	/**
@@ -56,35 +59,35 @@ class CodegenImplArray {
 		append(lines, "if (nextToken == 'n') {");
 		append(lines, "com.jsoniter.CodegenAccess.skipFixedBytes(iter, 3);");
 		append(lines, "com.jsoniter.CodegenAccess.resetExistingObject(iter); return null;");
-		append(lines, parentesi1);
-		append(lines, parentesi1);
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
+		append(lines, PARENTESI);
+		append(lines, PARENTESI);
 		String stringa7 = "nextToken = com.jsoniter.CodegenAccess.nextToken(iter);";
 		append(lines, stringa7);
 		append(lines, "if (nextToken == ']') {");
 		append(lines, "return new {{comp}}[0];");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "com.jsoniter.CodegenAccess.unreadByte(iter);");
 		append(lines, "{{comp}} a1 = {{op}};");
 		return lines;
 	}
 	
 	public static StringBuilder genArraySupport1(StringBuilder lines){
-		append(lines, stringaIf);
+		append(lines, STRINGAIF);
 		append(lines, "return new {{comp}}[]{ a1 };");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "{{comp}} a2 = {{op}};");
-		append(lines, stringaIf);
+		append(lines, STRINGAIF);
 		append(lines, "return new {{comp}}[]{ a1, a2 };");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "{{comp}} a3 = {{op}};");
-		append(lines, stringaIf);
+		append(lines, STRINGAIF);
 		append(lines, "return new {{comp}}[]{ a1, a2, a3 };");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "{{comp}} a4 = ({{comp}}) {{op}};");
-		append(lines, stringaIf);
+		append(lines, STRINGAIF);
 		append(lines, "return new {{comp}}[]{ a1, a2, a3, a4 };");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "{{comp}} a5 = ({{comp}}) {{op}};");
 		append(lines, "{{comp}}[] arr = new {{comp}}[10];");
 		append(lines, "arr[0] = a1;");
@@ -116,9 +119,9 @@ class CodegenImplArray {
 		append(lines, "{{comp}}[] newArr = new {{comp}}[arr.length * 2];");
 		append(lines, "System.arraycopy(arr, 0, newArr, 0, arr.length);");
 		append(lines, "arr = newArr;");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "arr[i++] = {{op}};");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "{{comp}}[] result = new {{comp}}[i];");
 		append(lines, "System.arraycopy(arr, 0, result, 0, i);");
 		append(lines, "return result;");
@@ -140,49 +143,50 @@ class CodegenImplArray {
 		append(lines, "if (!com.jsoniter.CodegenAccess.readArrayStart(iter)) {");
 		append(lines,
 				"return col == null ? new {{clazz}}(0): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "Object a1 = {{op}};");
-		append(lines, stringaIf2); 
+		append(lines, STRINGAIF2); 
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(1): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
 		
-		append(lines, obj1);
-		append(lines, returnObj);
-		append(lines, parentesi1);
+		append(lines, OBJ1);
+		append(lines, RETURNOBJ);
+		append(lines, PARENTESI);
 		append(lines, "Object a2 = {{op}};");
-		append(lines, stringaIf2);
+		append(lines, STRINGAIF2);
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(2): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, obj1);
-		append(lines, obj2);
-		append(lines, returnObj);
-		append(lines, parentesi1);
+		append(lines, OBJ1);
+		append(lines, OBJ2);
+		append(lines, RETURNOBJ);
+		append(lines, PARENTESI);
 		return lines;
 	}
 	
 	private static String genCollectionWithCapacity(Class clazz, Type compType) {
 		StringBuilder lines = new StringBuilder(SBSIZE);
 		lines = genCollectionWithCapacitySupport(lines);
+		lines.append("lines:");
 		append(lines, "Object a3 = {{op}};");
-		append(lines, stringaIf2);
+		append(lines, STRINGAIF2);
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(3): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, obj1);
-		append(lines, obj2);
-		append(lines, obj3);
-		append(lines, returnObj);
-		append(lines, parentesi1);
+		append(lines, OBJ1);
+		append(lines, OBJ2);
+		append(lines, OBJ3);
+		append(lines, RETURNOBJ);
+		append(lines, PARENTESI);
 		append(lines, "Object a4 = {{op}};");
 		append(lines,
 				"{{clazz}} obj = col == null ? new {{clazz}}(8): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, obj1);
-		append(lines, obj2);
-		append(lines, obj3);
-		append(lines, obj4);
+		append(lines, OBJ1);
+		append(lines, OBJ2);
+		append(lines, OBJ3);
+		append(lines, OBJ4);
 		append(lines, "while (com.jsoniter.CodegenAccess.nextToken(iter) == ',') {");
 		append(lines, "obj.add({{op}});");
-		append(lines, parentesi1);
-		append(lines, returnObj);
+		append(lines, PARENTESI);
+		append(lines, RETURNOBJ);
 		return lines.toString().replace("{{clazz}}", clazz.getName()).replace("{{op}}",
 				CodegenImplNative.genReadOp(compType));
 	}
@@ -193,47 +197,48 @@ class CodegenImplArray {
 		append(lines, "if (!com.jsoniter.CodegenAccess.readArrayStart(iter)) {");
 		append(lines,
 				"return col == null ? new {{clazz}}(): ({{clazz}})com.jsoniter.CodegenAccess.reuseCollection(col);");
-		append(lines, parentesi1);
+		append(lines, PARENTESI);
 		append(lines, "Object a1 = {{op}};");
-		append(lines, stringaIf2);
-		append(lines, stringa1);
-		append(lines, obj1);
-		append(lines, returnObj);
-		append(lines, parentesi1);
+		append(lines, STRINGAIF2);
+		append(lines, STRINGA);
+		append(lines, OBJ1);
+		append(lines, RETURNOBJ);
+		append(lines, PARENTESI);
 		append(lines, "Object a2 = {{op}};");
-		append(lines, stringaIf2);
-		append(lines, stringa1);
-		append(lines, obj1);
-		append(lines, obj2);
-		append(lines, returnObj);
-		append(lines, parentesi1);
+		append(lines, STRINGAIF2);
+		append(lines, STRINGA);
+		append(lines, OBJ1);
+		append(lines, OBJ2);
+		append(lines, RETURNOBJ);
+		append(lines, PARENTESI);
 		append(lines, "Object a3 = {{op}};");
 		return lines;
 	}
 	
 	private static StringBuilder genCollectionWithoutCapacitySupport1(StringBuilder lines){
-		append(lines, stringaIf2);
-		append(lines, stringa1);
-		append(lines, obj1);
-		append(lines, obj2);
-		append(lines, obj3);
-		append(lines, returnObj);
-		append(lines, parentesi1);
+		append(lines, STRINGAIF2);
+		append(lines, STRINGA);
+		append(lines, OBJ1);
+		append(lines, OBJ2);
+		append(lines, OBJ3);
+		append(lines, RETURNOBJ);
+		append(lines, PARENTESI);
 		append(lines, "Object a4 = {{op}};");
-		append(lines, stringa1);
-		append(lines, obj1);
-		append(lines, obj2);
-		append(lines, obj3);
-		append(lines, obj4);
+		append(lines, STRINGA);
+		append(lines, OBJ1);
+		append(lines, OBJ2);
+		append(lines, OBJ3);
+		append(lines, OBJ4);
 		append(lines, "while (com.jsoniter.CodegenAccess.nextToken(iter) == ',') {");
 		append(lines, "obj.add({{op}});");
-		append(lines, parentesi1);
-		append(lines, returnObj);
+		append(lines, PARENTESI);
+		append(lines, RETURNOBJ);
 		return lines;
 	}
 
 	private static String genCollectionWithoutCapacity(Class clazz, Type compType) {
 		StringBuilder lines = new StringBuilder(SBSIZE);
+		lines.append("lines:");
 		lines = genCollectionWithoutCapacitySupport(lines);
 		lines = genCollectionWithoutCapacitySupport1(lines);
 		return lines.toString().replace("{{clazz}}", clazz.getName()).replace("{{op}}",
