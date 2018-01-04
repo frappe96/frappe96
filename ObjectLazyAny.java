@@ -163,22 +163,26 @@ class ObjectLazyAny extends LazyAny {
 			}
 			byte b = CodegenAccess.nextToken(iter);
 			int intero = b;
-			while (intero == ',') {
-				String field = CodegenAccess.readObjectFieldAsString(iter);
-				value = iter.readAny();
-				cache.put(field, value);
-				if (field.hashCode() == target.hashCode() && field.equals(target)) {
-					lastParsedPos = CodegenAccess.head(iter);
-					return value;
-				}
-			}
-			lastParsedPos = tail;
-			return null;
+			return value = fillCacheUntilSupport(target, intero, value, iter);
 		} catch (IOException e) {
 			throw new JsonException(err);
 		} finally {
 			JsonIteratorPool.returnJsonIterator(iter);
 		}
+	}
+
+	private Any fillCacheUntilSupport(Object target, int intero, Any value, JsonIterator iter) throws IOException {
+		while (intero == ',') {
+			String field = CodegenAccess.readObjectFieldAsString(iter);
+			value = iter.readAny();
+			cache.put(field, value);
+			if (field.hashCode() == target.hashCode() && field.equals(target)) {
+				lastParsedPos = CodegenAccess.head(iter);
+				return value;
+			}
+		}
+		lastParsedPos = tail;
+		return null;
 	}
 
 	private void fillCache() {
