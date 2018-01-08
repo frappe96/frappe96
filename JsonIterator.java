@@ -253,7 +253,7 @@ public class JsonIterator implements Closeable {
 	 * 
 	 * @param value
 	 */
-	public final void reset(Slice value) {
+	protected final void reset(Slice value) {
 		this.buf = value.data();
 		this.head = value.head();
 		this.tail = value.tail();
@@ -285,7 +285,7 @@ public class JsonIterator implements Closeable {
 	/**
 	 * unreadByte
 	 */
-	final void unreadByte() {
+	protected final void unreadByte() {
 		if (head == 0) {
 			throw reportError("unreadByte", "unread too many bytes");
 		}
@@ -317,7 +317,7 @@ public class JsonIterator implements Closeable {
 	 * 
 	 * @return
 	 */
-	public final String currentBuffer() {
+	protected final String currentBuffer() {
 		int peekStart = head - 10;
 		if (peekStart < 0) {
 			peekStart = 0;
@@ -331,7 +331,7 @@ public class JsonIterator implements Closeable {
 	 * 
 	 * @throws IOException
 	 */
-	public final boolean readNull() throws IOException {
+	protected final boolean readNull() throws IOException {
 		byte c = IterImpl.nextToken(this);
 		if (c != 'n') {
 			unreadByte();
@@ -370,10 +370,20 @@ public class JsonIterator implements Closeable {
 	public final short readShort() throws IOException {
 		int v = readInt();
 		if (Short.MIN_VALUE <= v && v <= Short.MAX_VALUE) {
-			return (short) v;
+			return intToShort(v);
 		} else {
 			throw reportError("readShort", "short overflow: " + v);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param intero
+	 * @return
+	 */
+	private short intToShort (int intero){
+		Integer shortI = intero;
+		return shortI.shortValue();
 	}
 
 	/**
@@ -765,7 +775,7 @@ public class JsonIterator implements Closeable {
 	 * @param clazz
 	 * @return
 	 */
-	public static final <T> T deserialize(Config config, String input, Class<T> clazz) {
+	protected static final <T> T deserialize(Config config, String input, Class<T> clazz) {
 		JsoniterSpi.setCurrentConfig(config);
 		try {
 			return deserialize(input.getBytes(), clazz);
@@ -793,7 +803,7 @@ public class JsonIterator implements Closeable {
 	 * @param typeLiteral
 	 * @return
 	 */
-	public static final <T> T deserialize(Config config, String input, TypeLiteral<T> typeLiteral) {
+	protected static final <T> T deserialize(Config config, String input, TypeLiteral<T> typeLiteral) {
 		JsoniterSpi.setCurrentConfig(config);
 		try {
 			return deserialize(input.getBytes(), typeLiteral);
@@ -809,11 +819,19 @@ public class JsonIterator implements Closeable {
 	 * @param typeLiteral
 	 * @return
 	 */
-	public static final <T> T deserialize(String input, TypeLiteral<T> typeLiteral) {
+	protected static final <T> T deserialize(String input, TypeLiteral<T> typeLiteral) {
 		return deserialize(input.getBytes(), typeLiteral);
 	}
 
-	public static final <T> T deserialize(Config config, byte[] input, Class<T> clazz) {
+	/**
+	 * deserialize
+	 * 
+	 * @param config
+	 * @param input
+	 * @param clazz
+	 * @return
+	 */
+	protected static final <T> T deserialize(Config config, byte[] input, Class<T> clazz) {
 		JsoniterSpi.setCurrentConfig(config);
 		try {
 			return deserialize(input, clazz);
@@ -829,7 +847,7 @@ public class JsonIterator implements Closeable {
 	 * @param clazz
 	 * @return
 	 */
-	public static final <T> T deserialize(byte[] input, Class<T> clazz) {
+	protected static final <T> T deserialize(byte[] input, Class<T> clazz) {
 		int lastNotSpacePos = findLastNotSpacePos(input);
 		JsonIterator iter = JsonIteratorPool.borrowJsonIterator();
 		iter.reset(input, 0, lastNotSpacePos);
