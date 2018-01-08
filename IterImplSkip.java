@@ -115,7 +115,7 @@ class IterImplSkip {
 					supp = true;
 					ret = i + 1;
 				} else {
-					i = findStringEndSupp(iter, i);
+					ret = findStringEndSupp(iter, i);
 				}
 			} else if (iter.buf[i] == '\\' && !supp) {
 				escaped = true;
