@@ -1,8 +1,5 @@
 package com.jsoniter;
 
-import com.jsoniter.any.Any;
-import com.jsoniter.spi.*;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +10,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.jsoniter.any.Any;
+import com.jsoniter.spi.Config;
+import com.jsoniter.spi.DecodingMode;
+import com.jsoniter.spi.JsonException;
+import com.jsoniter.spi.JsoniterSpi;
+import com.jsoniter.spi.Slice;
+import com.jsoniter.spi.TypeLiteral;
 
 /**
  * Public Class JsonIterator.
