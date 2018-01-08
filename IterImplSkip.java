@@ -56,7 +56,13 @@ class IterImplSkip {
 		}
 
 	}
-	
+	/**
+	 * subSkip
+	 * @param iter
+	 * @param skipArr
+	 * @param c
+	 * @throws java.io.IOException
+	 */
 	private static void subSkip(JsonIterator iter, byte[] skipArr, byte c) throws IOException {
 		for(int i = 0; i<skipArr.length; i++) {
 			if(c == skipArr[i]) {
@@ -64,7 +70,12 @@ class IterImplSkip {
 			}
 		}
 	}
-	
+	/**
+	 * findStringEndSupp
+	 * @param iter
+	 * @param i
+	 * @return
+	 */
 	final static int findStringEndSupp(JsonIterator iter, int i){
 		boolean supp = false;
 		int ret = 0;
@@ -86,22 +97,27 @@ class IterImplSkip {
 		return ret;
 	}
 
-	// adapted from: https://github.com/buger/jsonparser/blob/master/parser.go
-	// Tries to find the end of string
-	// Support if string contains escaped quote symbols.
+	/**
+	 * findStringEnd
+	 * adapted from: https://github.com/buger/jsonparser/blob/master/parser.go
+	 * Tries to find the end of string
+	 * Support if string contains escaped quote symbols.
+	 * @param iter
+	 * @return
+	 */
 	final static int findStringEnd(JsonIterator iter) {
 		boolean escaped = false;
 		boolean supp = false;
 		int ret = -1;
-		for (int i = iter.head; i < iter.tail && !supp; i++) {
-			if (iter.buf[i] == '"') {
+		for (int i = iter.head; i < iter.tail ; i++) {
+			if (iter.buf[i] == '"' && !supp) {
 				if (!escaped) {
 					supp = true;
 					ret = i + 1;
 				} else {
 					i = findStringEndSupp(iter, i);
 				}
-			} else if (iter.buf[i] == '\\') {
+			} else if (iter.buf[i] == '\\' && !supp) {
 				escaped = true;
 			}
 		}
