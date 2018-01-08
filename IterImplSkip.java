@@ -64,6 +64,24 @@ class IterImplSkip {
 			}
 		}
 	}
+	
+	final static int findStringEnd(JsonIterator iter, int i){
+		for (int j = i - 1;;) {
+			if (j < iter.head || iter.buf[j] != '\\') {
+				// even number of backslashes
+				// either end of buffer, or " found
+				return i + 1;
+			}
+			j--;
+			if (j < iter.head || iter.buf[j] != '\\') {
+				// odd number of backslashes
+				// it is \" or \\\"
+				break;
+			}
+			j--;
+		}
+		return i;
+	}
 
 	// adapted from: https://github.com/buger/jsonparser/blob/master/parser.go
 	// Tries to find the end of string
@@ -75,20 +93,7 @@ class IterImplSkip {
 				if (!escaped) {
 					return i + 1;
 				} else {
-					for (int j = i - 1;;) {
-						if (j < iter.head || iter.buf[j] != '\\') {
-							// even number of backslashes
-							// either end of buffer, or " found
-							return i + 1;
-						}
-						j--;
-						if (j < iter.head || iter.buf[j] != '\\') {
-							// odd number of backslashes
-							// it is \" or \\\"
-							break;
-						}
-						j--;
-					}
+					i = findStringEnd(iter, i);
 				}
 			} else if (iter.buf[i] == '\\') {
 				escaped = true;
