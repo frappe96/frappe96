@@ -67,11 +67,12 @@ class IterImplSkip {
 	
 	final static int findStringEndSupp(JsonIterator iter, int i){
 		boolean supp = false;
+		int ret = 0;
 		for (int j = i - 1;;) {
 			if (j < iter.head || iter.buf[j] != '\\') {
 				// even number of backslashes
 				// either end of buffer, or " found
-				i = i + 1;
+				ret = i + 1;
 				supp = true;
 			}
 			j--;
@@ -82,7 +83,7 @@ class IterImplSkip {
 			}
 			j--;
 		}
-		return i;
+		return ret;
 	}
 
 	// adapted from: https://github.com/buger/jsonparser/blob/master/parser.go
@@ -90,10 +91,13 @@ class IterImplSkip {
 	// Support if string contains escaped quote symbols.
 	final static int findStringEnd(JsonIterator iter) {
 		boolean escaped = false;
-		for (int i = iter.head; i < iter.tail; i++) {
+		boolean supp = false;
+		int ret = -1;
+		for (int i = iter.head; i < iter.tail && !supp; i++) {
 			if (iter.buf[i] == '"') {
 				if (!escaped) {
-					return i + 1;
+					supp = true;
+					ret = i + 1;
 				} else {
 					i = findStringEndSupp(iter, i);
 				}
@@ -101,6 +105,6 @@ class IterImplSkip {
 				escaped = true;
 			}
 		}
-		return -1;
+		return ret;
 	}
 }
