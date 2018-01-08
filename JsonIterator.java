@@ -32,44 +32,45 @@ public class JsonIterator implements Closeable {
 	 * @author MaxiBon
 	 *
 	 */
-	public Config configCache;
+	protected Config configCache;
 	/**
 	 * final static ValueType[] valueTypes
 	 */
 	final static ValueType[] valueTypes = new ValueType[256];
 	/**
-	 * 
+	 * in
 	 */
 	InputStream in;
 	/**
-	 * 
+	 * buf
 	 */
 	byte[] buf;
 	/**
-	 * 
+	 * head
 	 */
 	int head;
 	/**
-	 * 
+	 * tail
 	 */
 	int tail;
 	/**
+	 * skipStartedAt
 	 */
 	int skipStartedAt = -1; // skip should keep bytes starting at this pos
 	/**
-	 * 
+	 * tempObjects
 	 */
 	Map<String, Object> tempObjects = null; // used in reflection object decoder
 	/**
-	 * 
+	 * reusableSlice
 	 */
 	final Slice reusableSlice = new Slice(null, 0, 0);
 	/**
-	 * 
+	 * reusableChars
 	 */
 	char[] reusableChars = new char[32];
 	/**
-	 * 
+	 * existingObject
 	 */
 	Object existingObject = null; // the object should be bind to next
 
@@ -420,22 +421,55 @@ public class JsonIterator implements Closeable {
 	 * @throws IOException
 	 */
 	public static interface ReadArrayCallback {
-
+		/**
+		 * handle
+		 * 
+		 * @param iter
+		 * @param attachment
+		 * @return
+		 * @throws IOException
+		 */
 		boolean handle(JsonIterator iter, Object attachment) throws IOException;
 	}
 
+	/**
+	 * readArrayCB
+	 * 
+	 * @param callback
+	 * @param attachment
+	 * @return
+	 * @throws IOException
+	 */
 	public final boolean readArrayCB(ReadArrayCallback callback, Object attachment) throws IOException {
 		return IterImplArray.readArrayCB(this, callback, attachment);
 	}
 
+	/**
+	 * readString
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public final String readString() throws IOException {
 		return IterImplString.readString(this);
 	}
 
+	/**
+	 * readStringAsSlice
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public final Slice readStringAsSlice() throws IOException {
 		return IterImpl.readSlice(this);
 	}
 
+	/**
+	 * readObject
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public final String readObject() throws IOException {
 		return IterImplObject.funReadObject(this);
 	}
