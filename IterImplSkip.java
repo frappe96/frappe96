@@ -65,15 +65,17 @@ class IterImplSkip {
 		}
 	}
 	
-	final static int findStringEnd(JsonIterator iter, int i){
+	final static int findStringEndSupp(JsonIterator iter, int i){
+		boolean supp = false;
 		for (int j = i - 1;;) {
 			if (j < iter.head || iter.buf[j] != '\\') {
 				// even number of backslashes
 				// either end of buffer, or " found
-				return i + 1;
+				i = i + 1;
+				supp = true;
 			}
 			j--;
-			if (j < iter.head || iter.buf[j] != '\\') {
+			if ((j < iter.head || iter.buf[j] != '\\') && !supp) {
 				// odd number of backslashes
 				// it is \" or \\\"
 				break;
@@ -93,7 +95,7 @@ class IterImplSkip {
 				if (!escaped) {
 					return i + 1;
 				} else {
-					i = findStringEnd(iter, i);
+					i = findStringEndSupp(iter, i);
 				}
 			} else if (iter.buf[i] == '\\') {
 				escaped = true;
